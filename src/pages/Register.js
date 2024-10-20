@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { registerUser } from "./authService";
-import { addUserToFirestore } from "./userService";
-import Usuario from "./Usuario";
+import { registerUser } from "../authService";
+import { addUserToFirestore } from "../userService";
+import Usuario from "../Usuario";
 import { useNavigate } from "react-router-dom";
+import Login from "../components/Login";
 
 const Register = ({ setIsRegistered }) => {
   const [nome, setNome] = useState("");
@@ -34,12 +35,7 @@ const Register = ({ setIsRegistered }) => {
   };
 
   return (
-    <div>
-      <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome" />
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Senha" />
-      <button onClick={handleRegister}>Registrar</button>
-    </div>
+    <Login />
   );
 };
 
