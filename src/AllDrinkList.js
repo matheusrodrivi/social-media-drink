@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
+import './AllDrinkList.css';
+import PublishButton from "./PublishButton";
+import SearchBar from "./SearchBar";
 
 const AllDrinksList = () => {
   const [drinks, setDrinks] = useState([]);
+  const [filteredDrinks, setFilteredDrinks] = useState([]);
   const db = getFirestore();
 
   useEffect(() => {
@@ -26,6 +30,7 @@ const AllDrinksList = () => {
         }
 
         setDrinks(allDrinks);
+        setFilteredDrinks(allDrinks);
       } catch (error) {
         console.error("Erro ao buscar drinks:", error);
       }
@@ -34,20 +39,36 @@ const AllDrinksList = () => {
     fetchAllDrinks();
   }, [db]);
 
+  const handleSearch = (query) => {
+    if (query.trim() === "") {
+      setFilteredDrinks(drinks);
+    } else {
+      const filtered = drinks.filter(drink => 
+        drink.nomeDrink.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredDrinks(filtered);
+    }
+  };
+
   return (
     <div>
-      <h2>Todos os Drinks Cadastrados</h2>
-      {drinks.length === 0 ? (
+      <SearchBar onSearch={handleSearch}/>
+      <div class="div-container">
+      <PublishButton/>
+      </div>
+      {filteredDrinks.length === 0 ? (
         <p>Nenhum drink cadastrado.</p>
       ) : (
         <ul>
-          {drinks.map(drink => (
-            <li key={drink.id}>
-              <h3>{drink.nomeDrink}</h3>
-              <p><strong>Descrição:</strong> {drink.descricao}</p>
-              <p><strong>Tipo:</strong> {drink.tipo}</p>
-              <p><strong>Cadastrado por:</strong> {drink.nomeUsuario}</p>
-            </li>
+          {filteredDrinks.map(drink => (
+            <div className="social-media-card">
+            <div className="card-header">
+              <h2 className="user-name">{drink.nomeUsuario}</h2>
+            </div>
+            <h3 className="post-title">{drink.nomeDrink}</h3>
+            <span className="post-type">{drink.tipo}</span>
+            <p className="post-description">{drink.descricao}</p>
+          </div>
           ))}
         </ul>
       )}

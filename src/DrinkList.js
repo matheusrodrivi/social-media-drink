@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getFirestore, collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import Footer from './Footer';
 
 const DrinkList = ({ codUsuario }) => {
   const [drinks, setDrinks] = useState([]);
@@ -37,6 +38,7 @@ const DrinkList = ({ codUsuario }) => {
 
   return (
     <div>
+      <div>
       <h2>Drinks Cadastrados</h2>
       {drinks.length === 0 ? (
         <p>Nenhum drink cadastrado.</p>
@@ -52,6 +54,7 @@ const DrinkList = ({ codUsuario }) => {
           ))}
         </ul>
       )}
+    </div>
     </div>
   );
 };

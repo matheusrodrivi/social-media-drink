@@ -1,0 +1,80 @@
+.social-media-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    width: 100%;
+    max-width: 400px;
+    margin: 16px auto;
+    box-sizing: border-box;
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+.div-container {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    height: 100%;
+}
+
+  
+  .user-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    margin-right: 8px;
+    margin-bottom: 4px;
+  }
+  
+  .post-type {
+    font-size: 14px;
+    /* color: #666; */
+    /* background-color: #f0f0f0; */
+    /* padding: 4px 8px; */
+    /* border-radius: 4px; */
+    display: inline-block;
+    /* margin-bottom: 4px; */
+  }
+  
+  .post-title {
+    font-size: 20px;
+    margin: 0 0 12px 0;
+    word-wrap: break-word;
+  }
+  
+  .post-description {
+    font-size: 16px;
+    color: #333;
+    line-height: 1.4;
+    margin: 0;
+    word-wrap: break-word;
+  }
+  
+  @media (max-width: 480px) {
+    .social-media-card {
+      padding: 12px;
+    }
+  
+    .user-name {
+      font-size: 16px;
+    }
+  
+    .post-type {
+      font-size: 12px;
+    }
+  
+    .post-title {
+      font-size: 18px;
+    }
+  
+    .post-description {
+      font-size: 14px;
+    }
+  }

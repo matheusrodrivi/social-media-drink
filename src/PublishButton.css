@@ -1,0 +1,28 @@
+.publish-button {
+    background-color: #000000;
+    border: none;
+    color: white;
+    padding: 15px 132px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    /* margin-left: 5px; */
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .publish-button:hover {
+    background-color: #9e9999;
+  }
+  
+  /* Responsive styles */
+  @media screen and (max-width: 600px) {
+    .publish-button {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+  }

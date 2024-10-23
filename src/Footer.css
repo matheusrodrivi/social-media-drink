@@ -1,0 +1,52 @@
+.social-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+  }
+  
+  .footer-nav {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .footer-nav-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .footer-nav-item {
+    text-align: center;
+  }
+  
+  .footer-nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.8rem;
+  }
+  
+  .footer-nav-link:hover {
+    color: #1da1f2;
+  }
+  
+  .footer-nav-link i {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+  
+  .icon-home::before {
+    content: "🏠";
+  }
+  
+  .icon-profile::before {
+    content: "👤";
+  }
