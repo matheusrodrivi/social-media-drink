@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { database } from "./firebaseConfig";
 import './AllDrinkList.css';
 import PublishButton from "./PublishButton";
 import SearchBar from "./SearchBar";
@@ -7,27 +7,33 @@ import SearchBar from "./SearchBar";
 const AllDrinksList = () => {
   const [drinks, setDrinks] = useState([]);
   const [filteredDrinks, setFilteredDrinks] = useState([]);
-  const db = getFirestore();
 
   useEffect(() => {
     const fetchAllDrinks = async () => {
       try {
-        const usersRef = collection(db, 'usuarios');
-        const usersSnapshot = await getDocs(usersRef);
+        const usersRef = database.ref('usuarios');
+        const usersSnapshot = await usersRef.once('value');
         const allDrinks = [];
 
-        for (const userDoc of usersSnapshot.docs) {
-          const drinksRef = collection(db, 'usuarios', userDoc.id, 'drinks');
-          const drinksSnapshot = await getDocs(drinksRef);
+        const drinkPromises = [];
 
-          drinksSnapshot.docs.forEach(drinkDoc => {
-            allDrinks.push({
-              id: drinkDoc.id,
-              ...drinkDoc.data(),
-              nomeUsuario: userDoc.data().nome
+        usersSnapshot.forEach(userSnapshot => {
+          const userId = userSnapshot.key;
+          const userName = userSnapshot.val().nome;
+          const drinksRef = database.ref(`usuarios/${userId}/drinks`);
+          const drinkPromise = drinksRef.once('value').then(drinksSnapshot => {
+            drinksSnapshot.forEach(drinkSnapshot => {
+              allDrinks.push({
+                id: drinkSnapshot.key,
+                ...drinkSnapshot.val(),
+                nomeUsuario: userName
+              });
             });
           });
-        }
+          drinkPromises.push(drinkPromise);
+        });
+
+        await Promise.all(drinkPromises);
 
         setDrinks(allDrinks);
         setFilteredDrinks(allDrinks);
@@ -37,7 +43,7 @@ const AllDrinksList = () => {
     };
 
     fetchAllDrinks();
-  }, [db]);
+  }, []);
 
   const handleSearch = (query) => {
     if (query.trim() === "") {
@@ -53,22 +59,22 @@ const AllDrinksList = () => {
   return (
     <div>
       <SearchBar onSearch={handleSearch}/>
-      <div class="div-container">
-      <PublishButton/>
+      <div className="div-container">
+        <PublishButton/>
       </div>
       {filteredDrinks.length === 0 ? (
         <p>Nenhum drink cadastrado.</p>
       ) : (
         <ul>
           {filteredDrinks.map(drink => (
-            <div className="social-media-card">
-            <div className="card-header">
-              <h2 className="user-name">{drink.nomeUsuario}</h2>
+            <div key={drink.id} className="social-media-card">
+              <div className="card-header">
+                <h2 className="user-name">{drink.nomeUsuario}</h2>
+              </div>
+              <h3 className="post-title">{drink.nomeDrink}</h3>
+              <span className="post-type">{drink.tipo}</span>
+              <p className="post-description">{drink.descricao}</p>
             </div>
-            <h3 className="post-title">{drink.nomeDrink}</h3>
-            <span className="post-type">{drink.tipo}</span>
-            <p className="post-description">{drink.descricao}</p>
-          </div>
           ))}
         </ul>
       )}

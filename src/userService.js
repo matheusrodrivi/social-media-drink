@@ -1,63 +1,55 @@
-import { firestore } from "./firebaseConfig";
-import Usuario from "./Usuario";
+import { database } from "./firebaseConfig"; // Ensure this points to your Firebase configuration file
 
-// export const addUserToFirestore = (usuario) => {
-//   const userRef = firestore.collection("usuarios").doc(usuario.getCodUsuario());
-//   return userRef.set({
-//     nome: usuario.getNome(),
-//     email: usuario.getEmail(),
-//     codUsuario: usuario.getCodUsuario()
-//   });
-// };
-
-
-export const addUserToFirestore = async (usuario) => {
-    const userRef = firestore.collection("usuarios").doc(usuario.getCodUsuario());
-    await userRef.set({
-      nome: usuario.getNome(),
-      email: usuario.getEmail(),
-      codUsuario: usuario.getCodUsuario()
-    });
-};
-
-export const getUserFromFirestore = async (codUsuario) => {
-  const userRef = firestore.collection("usuarios").doc(codUsuario);
-  const doc = await userRef.get();
-  if (doc.exists) {
-    return doc.data();
+export const getUserFromDatabase = async (codUsuario) => {
+  const userRef = database.ref(`usuarios/${codUsuario}`);
+  const snapshot = await userRef.once('value');
+  if (snapshot.exists()) {
+    return snapshot.val();
   } else {
     throw new Error("Usuário não encontrado");
   }
 };
 
 export const addDrinkToUser = async (codUsuario, drink) => {
-    const drinkRef = firestore.collection("usuarios")
-                              .doc(codUsuario)
-                              .collection("drinks")
-                              .doc(drink.nomeDrink); // ou use `.add()` para ID automático
-    await drinkRef.set({
-      nomeDrink: drink.nomeDrink,
-      descricao: drink.descricao,
-      tipo: drink.tipo,
-      dataAdicao: new Date()
-    });
+  const drinkRef = database.ref(`usuarios/${codUsuario}/drinks`).push();
+  await drinkRef.set({
+    nomeDrink: drink.nomeDrink,
+    descricao: drink.descricao,
+    tipo: drink.tipo,
+    dataAdicao: new Date().toISOString()
+  });
 };
 
 export const removeDrinkFromUser = async (codUsuario, nomeDrink) => {
-    const drinkRef = firestore.collection("usuarios")
-                              .doc(codUsuario)
-                              .collection("drinks")
-                              .doc(nomeDrink);
-    await drinkRef.delete();
+  const drinksRef = database.ref(`usuarios/${codUsuario}/drinks`);
+  const snapshot = await drinksRef.orderByChild('nomeDrink').equalTo(nomeDrink).once('value');
+  const updates = {};
+  snapshot.forEach(childSnapshot => {
+    updates[childSnapshot.key] = null;
+  });
+  await drinksRef.update(updates);
 };
 
 export const getUserDrinks = async (codUsuario) => {
-    const drinksRef = firestore.collection("usuarios").doc(codUsuario).collection("drinks");
-    const snapshot = await drinksRef.get();
-    const drinks = [];
-    snapshot.forEach(doc => {
-      drinks.push(doc.data());
-    });
-    return drinks;
+  const drinksRef = database.ref(`usuarios/${codUsuario}/drinks`);
+  const snapshot = await drinksRef.once('value');
+  const drinks = [];
+  snapshot.forEach(childSnapshot => {
+    drinks.push(childSnapshot.val());
+  });
+  return drinks;
 };
-  
+
+export const addUserToDatabase = async (usuario) => {
+  try {
+    await database.ref('users/' + usuario.codUsuario).set({
+      nome: usuario.nome,
+      email: usuario.email,
+      senha: usuario.senha
+    });
+    console.log("Usuário adicionado ao Realtime Database com sucesso!");
+  } catch (error) {
+    console.error("Erro ao adicionar usuário ao Realtime Database:", error);
+    throw error;
+  }
+};

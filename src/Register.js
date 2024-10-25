@@ -3,6 +3,8 @@ import { registerUser } from "./authService";
 import { addUserToFirestore } from "./userService";
 import Usuario from "./Usuario";
 import { useNavigate } from "react-router-dom";
+import { addUserToDatabase } from "./userService"; // Updated import
+
 
 const Register = ({ setIsRegistered }) => {
   const [nome, setNome] = useState("");
@@ -10,6 +12,29 @@ const Register = ({ setIsRegistered }) => {
   const [senha, setSenha] = useState("");
   const navigate = useNavigate();
   
+  // const handleRegister = async () => {
+  //   try {
+  //     const userCredential = await registerUser(email, senha);
+  //     const user = userCredential.user;
+  //     const codUsuario = user.uid;
+
+  //     const usuario = new Usuario(nome, codUsuario, email, senha);
+
+  //     await addUserToFirestore(usuario);
+
+  //     localStorage.setItem("codUsuario", codUsuario);
+
+  //     setIsRegistered(true);
+
+  //     navigate("/register-drink");
+
+  //     alert("Usuário registrado com sucesso!");
+  //   } catch (error) {
+  //     console.error("Erro ao registrar usuário:", error);
+  //     alert(error.message);
+  //   }
+  // };
+
   const handleRegister = async () => {
     try {
       const userCredential = await registerUser(email, senha);
@@ -18,7 +43,7 @@ const Register = ({ setIsRegistered }) => {
 
       const usuario = new Usuario(nome, codUsuario, email, senha);
 
-      await addUserToFirestore(usuario);
+      await addUserToDatabase(usuario); 
 
       localStorage.setItem("codUsuario", codUsuario);
 
