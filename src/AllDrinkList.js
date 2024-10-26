@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { database } from "./firebaseConfig";
-import './AllDrinkList.css';
-import PublishButton from "./PublishButton";
+import React, { useState, useEffect } from "react";
+import { database } from "./firebaseConfig"; // Import the database reference
 import SearchBar from "./SearchBar";
+import PublishButton from "./PublishButton";
+import './AllDrinkList.css';
 
 const AllDrinksList = () => {
   const [drinks, setDrinks] = useState([]);
@@ -11,32 +11,21 @@ const AllDrinksList = () => {
   useEffect(() => {
     const fetchAllDrinks = async () => {
       try {
-        const usersRef = database.ref('usuarios');
-        const usersSnapshot = await usersRef.once('value');
+        const allDrinksSnapshot = await database.ref('drinks').once('value');
         const allDrinks = [];
-
-        const drinkPromises = [];
-
-        usersSnapshot.forEach(userSnapshot => {
-          const userId = userSnapshot.key;
-          const userName = userSnapshot.val().nome;
-          const drinksRef = database.ref(`usuarios/${userId}/drinks`);
-          const drinkPromise = drinksRef.once('value').then(drinksSnapshot => {
-            drinksSnapshot.forEach(drinkSnapshot => {
-              allDrinks.push({
-                id: drinkSnapshot.key,
-                ...drinkSnapshot.val(),
-                nomeUsuario: userName
-              });
-            });
-          });
-          drinkPromises.push(drinkPromise);
+        allDrinksSnapshot.forEach(drinkSnapshot => {
+          const drink = drinkSnapshot.val();
+          allDrinks.push({ id: drinkSnapshot.key, ...drink });
         });
 
-        await Promise.all(drinkPromises);
+        const drinksWithUserDetails = await Promise.all(allDrinks.map(async (drink) => {
+          const userSnapshot = await database.ref(`usuarios/${drink.codUsuario}`).once('value');
+          const user = userSnapshot.val();
+          return { ...drink, nomeUsuario: user.nome };
+        }));
 
-        setDrinks(allDrinks);
-        setFilteredDrinks(allDrinks);
+        setDrinks(drinksWithUserDetails);
+        setFilteredDrinks(drinksWithUserDetails);
       } catch (error) {
         console.error("Erro ao buscar drinks:", error);
       }
@@ -57,7 +46,7 @@ const AllDrinksList = () => {
   };
 
   return (
-    <div>
+    <div className="divAllDrinkList">
       <SearchBar onSearch={handleSearch}/>
       <div className="div-container">
         <PublishButton/>

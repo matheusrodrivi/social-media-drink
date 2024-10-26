@@ -1,62 +1,61 @@
-import React, { useEffect, useState } from 'react';
-import { database } from './firebaseConfig';
-import Footer from './Footer';
+import React, { useState, useEffect } from "react";
+import { database } from "./firebaseConfig"; // Import the database reference
+// import './DrinkList.css';
+import UserProfile from './components/UserProfile/UserProfile';
 
-const DrinkList = ({ codUsuario }) => {
+
+const DrinkList = () => {
   const [drinks, setDrinks] = useState([]);
-  const [usuarioNome, setUsuarioNome] = useState('');
+  const codUsuario = localStorage.getItem("codUsuario"); // Retrieve the logged-in user's codUsuario
+  const [usuarioNome, setUsuarioNome] = useState("");
 
   useEffect(() => {
-    const fetchDrinks = async () => {
+    const fetchUserDrinks = async () => {
       try {
-        const drinksRef = database.ref(`usuarios/${codUsuario}/drinks`);
-        const drinksSnapshot = await drinksRef.once('value');
+        const userSnapshot = await database.ref(`usuarios/${codUsuario}`).once('value');
+        const user = userSnapshot.val();
+        setUsuarioNome(user.nome);
 
-        const drinksList = [];
+        const drinksSnapshot = await database.ref('drinks').orderByChild('codUsuario').equalTo(codUsuario).once('value');
+        const userDrinks = [];
         drinksSnapshot.forEach(drinkSnapshot => {
-          drinksList.push({
-            id: drinkSnapshot.key,
-            ...drinkSnapshot.val()
-          });
+          const drink = drinkSnapshot.val();
+          userDrinks.push({ id: drinkSnapshot.key, ...drink });
         });
 
-        setDrinks(drinksList);
+        const drinksWithUserDetails = userDrinks.map(drink => ({
+          ...drink,
+          nomeUsuario: user.nome
+        }));
 
-        const usuarioRef = database.ref(`usuarios/${codUsuario}`);
-        const usuarioSnapshot = await usuarioRef.once('value');
-        if (usuarioSnapshot.exists()) {
-          setUsuarioNome(usuarioSnapshot.val().nome);
-        } else {
-          console.log("Usuário não encontrado!");
-        }
-
+        setDrinks(drinksWithUserDetails);
       } catch (error) {
         console.error("Erro ao buscar drinks:", error);
       }
     };
 
-    fetchDrinks();
+    fetchUserDrinks();
   }, [codUsuario]);
 
   return (
     <div>
-      <div>
-        <h2>Drinks Cadastrados</h2>
-        {drinks.length === 0 ? (
-          <p>Nenhum drink cadastrado.</p>
-        ) : (
-          <ul>
-            {drinks.map(drink => (
-              <li key={drink.id}>
-                <h3>{drink.nomeDrink}</h3>
-                <p><strong>Descrição:</strong> {drink.descricao}</p>
-                <p><strong>Tipo:</strong> {drink.tipo}</p>
-                <p><strong>Cadastrado por:</strong> {usuarioNome}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <UserProfile userName={usuarioNome} />
+      {drinks.length === 0 ? (
+        <p>Nenhum drink cadastrado.</p>
+      ) : (
+        <ul>
+          {drinks.map(drink => (
+            <div key={drink.id} className="social-media-card">
+              <div className="card-header">
+                <h2 className="user-name">{drink.nomeUsuario}</h2>
+              </div>
+              <h3 className="post-title">{drink.nomeDrink}</h3>
+              <span className="post-type">{drink.tipo}</span>
+              <p className="post-description">{drink.descricao}</p>
+            </div>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

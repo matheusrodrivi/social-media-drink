@@ -10,9 +10,10 @@ export const getUserFromDatabase = async (codUsuario) => {
   }
 };
 
-export const addDrinkToUser = async (codUsuario, drink) => {
-  const drinkRef = database.ref(`usuarios/${codUsuario}/drinks`).push();
+export const addDrinkToDatabase = async (codUsuario, drink) => {
+  const drinkRef = database.ref('drinks').push();
   await drinkRef.set({
+    codUsuario,
     nomeDrink: drink.nomeDrink,
     descricao: drink.descricao,
     tipo: drink.tipo,
@@ -20,19 +21,21 @@ export const addDrinkToUser = async (codUsuario, drink) => {
   });
 };
 
-export const removeDrinkFromUser = async (codUsuario, nomeDrink) => {
-  const drinksRef = database.ref(`usuarios/${codUsuario}/drinks`);
+export const removeDrinkFromDatabase = async (codUsuario, nomeDrink) => {
+  const drinksRef = database.ref('drinks');
   const snapshot = await drinksRef.orderByChild('nomeDrink').equalTo(nomeDrink).once('value');
   const updates = {};
   snapshot.forEach(childSnapshot => {
-    updates[childSnapshot.key] = null;
+    if (childSnapshot.val().codUsuario === codUsuario) {
+      updates[childSnapshot.key] = null;
+    }
   });
   await drinksRef.update(updates);
 };
 
 export const getUserDrinks = async (codUsuario) => {
-  const drinksRef = database.ref(`usuarios/${codUsuario}/drinks`);
-  const snapshot = await drinksRef.once('value');
+  const drinksRef = database.ref('drinks');
+  const snapshot = await drinksRef.orderByChild('codUsuario').equalTo(codUsuario).once('value');
   const drinks = [];
   snapshot.forEach(childSnapshot => {
     drinks.push(childSnapshot.val());
@@ -42,14 +45,12 @@ export const getUserDrinks = async (codUsuario) => {
 
 export const addUserToDatabase = async (usuario) => {
   try {
-    await database.ref('users/' + usuario.codUsuario).set({
+    await database.ref('usuarios/' + usuario.codUsuario).set({
       nome: usuario.nome,
       email: usuario.email,
       senha: usuario.senha
     });
-    console.log("Usuário adicionado ao Realtime Database com sucesso!");
   } catch (error) {
-    console.error("Erro ao adicionar usuário ao Realtime Database:", error);
-    throw error;
+    throw new Error("Erro ao adicionar usuário: " + error.message);
   }
 };

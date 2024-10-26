@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { database } from "./firebaseConfig";
+import { addDrinkToDatabase } from "./userService";
 import './DrinkRegister.css';
 
 const DrinkRegister = () => {
@@ -14,19 +14,12 @@ const DrinkRegister = () => {
         throw new Error("Usuário não está logado.");
       }
 
-      console.log("Registering drink with the following details:", {
-        nomeDrink,
-        descricao,
-        tipo,
-        codUsuario
-      });
+      if (!nomeDrink.trim() || !descricao.trim() || !tipo.trim()) {
+        alert("Todos os campos devem ser preenchidos.");
+        return;
+      }
 
-      await database.ref(`usuarios/${codUsuario}/drinks`).push({
-        nomeDrink,
-        descricao,
-        tipo,
-        nomeUsuario: codUsuario,
-      });
+      await addDrinkToDatabase(codUsuario, { nomeDrink, descricao, tipo });
 
       alert("Drink registrado com sucesso!");
     } catch (error) {
@@ -36,34 +29,50 @@ const DrinkRegister = () => {
   };
 
   return (
-    <div className="card">
-      <div className="card-header">
-        <h2 className="card-title">Criar Nova Publicação</h2>
-      </div>
-      <div className="card-body">
+    <div className="registration-container">
+      <h2>Criar publicação</h2>
+      <div className="form-group">
+        <label htmlFor="drinkName">Nome:</label>
         <input
           type="text"
-          id="nomeDrink"
+          id="drinkName"
+          name="drinkName"
           value={nomeDrink}
           onChange={(e) => setNomeDrink(e.target.value)}
-          placeholder="Nome do Drink"
         />
-        <input
-          type="text"
-          id="descricao"
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="description">Descrição:</label>
+        <textarea
+          id="description"
+          name="description"
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
-          placeholder="Descrição"
         />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="type">Tipo:</label>
         <input
           type="text"
-          id="tipo"
+          id="type"
+          name="type"
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
-          placeholder="Tipo"
         />
-        <button onClick={handleRegisterDrink}>Registrar Drink</button>
       </div>
+
+      <div className="form-group">
+        <label htmlFor="image">Imagem URL:</label>
+        <input
+          type="text"
+          id="image"
+          name="image"
+        />
+      </div>
+
+      <button onClick={handleRegisterDrink} type="submit" className="submit-button">Register Drink</button>
     </div>
   );
 };
