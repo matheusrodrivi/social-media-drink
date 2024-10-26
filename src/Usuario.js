@@ -93,7 +93,7 @@ export default class Usuario {
   static validarNome(nome) {
     if(!nome || nome.length > 40) 
       return false;
-    const padraoNome = /^[A-Z][a-z]+(\s[A-Z][a-z]+)*$/;
+    const padraoNome = /^[a-zA-Zà-úÀ-Ú]+(\s[a-zA-Zà-úÀ-Ú]+)*$/;
     return padraoNome.test(nome);
   }
 
