@@ -4,7 +4,7 @@ import SearchBar from "./SearchBar";
 import PublishButton from "./PublishButton";
 import './AllDrinkList.css';
 
-const AllDrinksList = () => {
+const AllDrinkList = () => {
   const [drinks, setDrinks] = useState([]);
   const [filteredDrinks, setFilteredDrinks] = useState([]);
   const [users, setUsers] = useState({});
@@ -32,6 +32,7 @@ const AllDrinksList = () => {
         }));
 
         setDrinks(drinksWithUserDetails);
+        setFilteredDrinks(drinksWithUserDetails); // Initialize filtered drinks
       } catch (error) {
         console.error("Erro ao buscar drinks:", error);
       }
@@ -53,15 +54,16 @@ const AllDrinksList = () => {
 
   return (
     <div className="divAllDrinkList">
-      <SearchBar onSearch={handleSearch}/>
+      {/* <UserProfile userName="Todos os Usuários" /> */}
+      <SearchBar onSearch={handleSearch} />
       <div className="div-container">
-        <PublishButton/>
+        <PublishButton />
       </div>
-      {drinks.length === 0 ? (
+      {filteredDrinks.length === 0 ? (
         <p>Nenhum drink cadastrado.</p>
       ) : (
         <ul>
-          {drinks.map(drink => (
+          {filteredDrinks.map(drink => (
             <div key={drink.id} className="social-media-card">
               <div className="card-header">
                 <h2 className="user-name">{drink.nomeUsuario}</h2>
@@ -77,4 +79,4 @@ const AllDrinksList = () => {
   );
 };
 
-export default AllDrinksList;
+export default AllDrinkList;
