@@ -7,25 +7,31 @@ import './AllDrinkList.css';
 const AllDrinksList = () => {
   const [drinks, setDrinks] = useState([]);
   const [filteredDrinks, setFilteredDrinks] = useState([]);
+  const [users, setUsers] = useState({});
 
   useEffect(() => {
     const fetchAllDrinks = async () => {
       try {
-        const allDrinksSnapshot = await database.ref('drinks').once('value');
+        // Fetch all users
+        const usersSnapshot = await database.ref('usuarios').once('value');
+        const usersData = usersSnapshot.val();
+        setUsers(usersData);
+
+        // Fetch all drinks
+        const drinksSnapshot = await database.ref('drinks').once('value');
         const allDrinks = [];
-        allDrinksSnapshot.forEach(drinkSnapshot => {
+        drinksSnapshot.forEach(drinkSnapshot => {
           const drink = drinkSnapshot.val();
           allDrinks.push({ id: drinkSnapshot.key, ...drink });
         });
 
-        const drinksWithUserDetails = await Promise.all(allDrinks.map(async (drink) => {
-          const userSnapshot = await database.ref(`usuarios/${drink.codUsuario}`).once('value');
-          const user = userSnapshot.val();
-          return { ...drink, nomeUsuario: user.nome };
+        // Map drinks with user details
+        const drinksWithUserDetails = allDrinks.map(drink => ({
+          ...drink,
+          nomeUsuario: usersData[drink.codUsuario]?.nome || 'Unknown User'
         }));
 
         setDrinks(drinksWithUserDetails);
-        setFilteredDrinks(drinksWithUserDetails);
       } catch (error) {
         console.error("Erro ao buscar drinks:", error);
       }
@@ -51,11 +57,11 @@ const AllDrinksList = () => {
       <div className="div-container">
         <PublishButton/>
       </div>
-      {filteredDrinks.length === 0 ? (
+      {drinks.length === 0 ? (
         <p>Nenhum drink cadastrado.</p>
       ) : (
         <ul>
-          {filteredDrinks.map(drink => (
+          {drinks.map(drink => (
             <div key={drink.id} className="social-media-card">
               <div className="card-header">
                 <h2 className="user-name">{drink.nomeUsuario}</h2>
