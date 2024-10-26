@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { database } from "./firebaseConfig"; // Import the database reference
 // import './DrinkList.css';
 import UserProfile from './components/UserProfile/UserProfile';
-
+import { removeDrinkFromDatabase } from './userService'; // Adjust the import path as necessary
 
 const DrinkList = () => {
   const [drinks, setDrinks] = useState([]);
@@ -37,6 +37,11 @@ const DrinkList = () => {
     fetchUserDrinks();
   }, [codUsuario]);
 
+  const handleDelete = async (nomeDrink) => {
+    await removeDrinkFromDatabase(codUsuario, nomeDrink);
+    setDrinks(drinks.filter(drink => drink.nomeDrink !== nomeDrink));
+  };
+
   return (
     <div>
       <UserProfile userName={usuarioNome} />
@@ -52,6 +57,8 @@ const DrinkList = () => {
               <h3 className="post-title">{drink.nomeDrink}</h3>
               <span className="post-type">{drink.tipo}</span>
               <p className="post-description">{drink.descricao}</p>
+              <button onClick={() => handleDelete(drink.nomeDrink)}>Delete</button>
+
             </div>
           ))}
         </ul>
